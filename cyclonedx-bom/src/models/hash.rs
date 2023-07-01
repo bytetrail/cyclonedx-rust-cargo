@@ -80,7 +80,7 @@ impl Validate for Hashes {
 ///
 /// Defined via the [CycloneDX XML schema](https://cyclonedx.org/docs/1.3/xml/#type_hashAlg)
 #[allow(non_camel_case_types)]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum HashAlgorithm {
     MD5,
     SHA1,
@@ -159,6 +159,12 @@ impl Validate for HashAlgorithm {
 /// Defined via the [CycloneDX XML schema](https://cyclonedx.org/docs/1.3/xml/#type_hashValue)
 #[derive(Debug, PartialEq, Eq)]
 pub struct HashValue(pub(crate) String);
+
+impl HashValue {
+    pub fn value(&self) -> &str {
+        &self.0
+    }
+}
 
 impl Validate for HashValue {
     fn validate_with_context(

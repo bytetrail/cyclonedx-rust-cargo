@@ -256,7 +256,7 @@ impl Validate for Components {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Classification {
     Application,
     Framework,
@@ -320,7 +320,7 @@ impl Validate for Classification {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Scope {
     Required,
     Optional,
@@ -371,6 +371,12 @@ impl Validate for Scope {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct MimeType(pub(crate) String);
+
+impl MimeType {
+    pub fn value(&self) -> &str {
+        &self.0
+    }
+}
 
 impl Validate for MimeType {
     fn validate_with_context(
@@ -436,6 +442,13 @@ impl Validate for Swid {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Cpe(pub(crate) String);
+
+impl Cpe {
+    pub fn value(&self) -> &str {
+        &self.0
+    }
+}
+
 impl Validate for Cpe {
     fn validate_with_context(
         &self,
@@ -465,7 +478,7 @@ impl Validate for Cpe {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ComponentEvidence {
     pub licenses: Option<Licenses>,
     pub copyright: Option<CopyrightTexts>,
@@ -550,7 +563,7 @@ impl Validate for Pedigree {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Copyright(pub String);
 
 impl Validate for Copyright {
@@ -562,8 +575,8 @@ impl Validate for Copyright {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct CopyrightTexts(pub(crate) Vec<Copyright>);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CopyrightTexts(pub Vec<Copyright>);
 
 impl Validate for CopyrightTexts {
     fn validate_with_context(

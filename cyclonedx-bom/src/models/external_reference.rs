@@ -108,7 +108,7 @@ impl Validate for ExternalReferences {
 }
 
 /// Defined via the [CycloneDX XML schema](https://cyclonedx.org/docs/1.3/xml/#type_externalReferenceType).
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExternalReferenceType {
     Vcs,
     IssueTracker,

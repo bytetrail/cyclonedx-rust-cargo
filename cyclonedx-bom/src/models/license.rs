@@ -32,7 +32,7 @@ use crate::validation::{
 /// Represents whether a license is a named license or an SPDX license expression
 ///
 /// As defined via the [CycloneDX XML schema](https://cyclonedx.org/docs/1.3/xml/#type_licenseChoiceType)
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LicenseChoice {
     License(License),
     Expression(SpdxExpression),
@@ -67,7 +67,7 @@ impl Validate for LicenseChoice {
 /// Represents a license with identifier, text, and url
 ///
 /// Defined via the [CycloneDX XML schema](https://cyclonedx.org/docs/1.3/xml/#type_licenseType)
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct License {
     pub license_identifier: LicenseIdentifier,
     pub text: Option<AttachedText>,
@@ -139,7 +139,7 @@ impl Validate for License {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Licenses(pub Vec<LicenseChoice>);
 
 impl Validate for Licenses {
@@ -161,7 +161,7 @@ impl Validate for Licenses {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LicenseIdentifier {
     /// An SPDX license identifier from the list on the [SPDX website](https://spdx.org/licenses/).
     SpdxId(SpdxIdentifier),
