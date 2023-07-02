@@ -408,6 +408,10 @@ impl UrnUuid {
     pub fn generate() -> Self {
         Self::from(uuid::Uuid::new_v4())
     }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 impl fmt::Display for UrnUuid {

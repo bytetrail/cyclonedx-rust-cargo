@@ -190,7 +190,7 @@ impl Validate for Services {
 /// Represents the data classification and data flow
 ///
 /// Defined via the [XML schema](https://cyclonedx.org/docs/1.3/xml/#type_dataClassificationType)
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DataClassification {
     pub flow: DataFlowType,
     pub classification: NormalizedString,
@@ -224,7 +224,7 @@ impl Validate for DataClassification {
 /// Represents the flow direction of the data
 ///
 /// Defined via the [XML schema](https://cyclonedx.org/docs/1.3/xml/#type_dataFlowType)
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DataFlowType {
     Inbound,
     Outbound,
