@@ -68,7 +68,7 @@ impl Validate for Compositions {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AggregateType {
     Complete,
     Incomplete,
@@ -128,6 +128,12 @@ impl Validate for AggregateType {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct BomReference(pub(crate) String);
+
+impl BomReference {
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
 
 #[cfg(test)]
 mod test {
