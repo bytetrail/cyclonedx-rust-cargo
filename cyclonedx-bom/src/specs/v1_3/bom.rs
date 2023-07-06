@@ -89,6 +89,7 @@ impl From<Bom> for models::bom::Bom {
             dependencies: convert_optional(other.dependencies),
             compositions: convert_optional(other.compositions),
             properties: convert_optional(other.properties),
+            release_notes: None,
         }
     }
 }
@@ -392,6 +393,7 @@ pub(crate) mod test {
             dependencies: Some(corresponding_dependencies()),
             compositions: Some(corresponding_compositions()),
             properties: Some(corresponding_properties()),
+            release_notes: None,
         }
     }
 

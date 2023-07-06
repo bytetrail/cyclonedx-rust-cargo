@@ -17,7 +17,6 @@
  */
 
 pub use crate::external_models::{
-    date_time::DateTime,
     normalized_string::NormalizedString,
     spdx::{SpdxExpression, SpdxIdentifier},
     uri::{Purl, Uri},

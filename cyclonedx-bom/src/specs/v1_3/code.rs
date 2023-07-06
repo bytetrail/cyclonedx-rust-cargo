@@ -18,16 +18,17 @@
 
 use crate::{
     errors::XmlReadError,
-    external_models::{date_time::DateTime, normalized_string::NormalizedString, uri::Uri},
+    external_models::{normalized_string::NormalizedString, uri::Uri},
     models,
     specs::v1_3::attached_text::AttachedText,
     utilities::{convert_optional, convert_optional_vec, convert_vec},
     xml::{
         attribute_or_error, read_lax_validation_list_tag, read_lax_validation_tag, read_list_tag,
-        read_simple_tag, to_xml_read_error, to_xml_write_error, unexpected_element_error,
-        write_simple_tag, FromXml, ToInnerXml, ToXml,
+        read_simple_tag, read_timestamp_tag, to_xml_read_error, to_xml_write_error,
+        unexpected_element_error, write_simple_tag, FromXml, ToInnerXml, ToXml,
     },
 };
+use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 use xml::{reader, writer};
 
@@ -235,7 +236,7 @@ impl FromXml for Commit {
 #[serde(rename_all = "camelCase")]
 struct IdentifiableAction {
     #[serde(skip_serializing_if = "Option::is_none")]
-    timestamp: Option<String>,
+    timestamp: Option<DateTime<FixedOffset>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -245,7 +246,7 @@ struct IdentifiableAction {
 impl From<models::code::IdentifiableAction> for IdentifiableAction {
     fn from(other: models::code::IdentifiableAction) -> Self {
         Self {
-            timestamp: other.timestamp.map(|t| t.to_string()),
+            timestamp: convert_optional(other.timestamp),
             name: other.name.map(|n| n.to_string()),
             email: other.email.map(|e| e.to_string()),
         }
@@ -255,7 +256,7 @@ impl From<models::code::IdentifiableAction> for IdentifiableAction {
 impl From<IdentifiableAction> for models::code::IdentifiableAction {
     fn from(other: IdentifiableAction) -> Self {
         Self {
-            timestamp: other.timestamp.map(DateTime),
+            timestamp: convert_optional(other.timestamp),
             name: other.name.map(NormalizedString::new_unchecked),
             email: other.email.map(NormalizedString::new_unchecked),
         }
@@ -277,7 +278,11 @@ impl ToInnerXml for IdentifiableAction {
             .map_err(to_xml_write_error(tag))?;
 
         if let Some(timestamp) = &self.timestamp {
-            write_simple_tag(writer, TIMESTAMP_TAG, timestamp)?;
+            write_simple_tag(
+                writer,
+                TIMESTAMP_TAG,
+                &format!("{}", timestamp.format("%Y-%m-%dT%H:%M:%S%:z")),
+            )?;
         }
 
         if let Some(name) = &self.name {
@@ -305,7 +310,7 @@ impl FromXml for IdentifiableAction {
     where
         Self: Sized,
     {
-        let mut timestamp: Option<String> = None;
+        let mut timestamp: Option<DateTime<FixedOffset>> = None;
         let mut identity_name: Option<String> = None;
         let mut email: Option<String> = None;
 
@@ -316,7 +321,7 @@ impl FromXml for IdentifiableAction {
                 .map_err(to_xml_read_error(element_name.local_name.as_str()))?;
             match next_element {
                 reader::XmlEvent::StartElement { name, .. } if name.local_name == TIMESTAMP_TAG => {
-                    timestamp = Some(read_simple_tag(event_reader, &name)?)
+                    timestamp = Some(read_timestamp_tag(event_reader, &name)?)
                 }
                 reader::XmlEvent::StartElement { name, .. } if name.local_name == NAME_TAG => {
                     identity_name = Some(read_simple_tag(event_reader, &name)?)
@@ -908,7 +913,7 @@ pub(crate) mod test {
 
     fn example_identifiable_action() -> IdentifiableAction {
         IdentifiableAction {
-            timestamp: Some("timestamp".to_string()),
+            timestamp: Some(DateTime::parse_from_rfc3339("2001-02-03T04:05:06+07:00").unwrap()),
             name: Some("name".to_string()),
             email: Some("email".to_string()),
         }
@@ -916,7 +921,7 @@ pub(crate) mod test {
 
     fn corresponding_identifiable_action() -> models::code::IdentifiableAction {
         models::code::IdentifiableAction {
-            timestamp: Some(DateTime("timestamp".to_string())),
+            timestamp: Some(DateTime::parse_from_rfc3339("2001-02-03T04:05:06+07:00").unwrap()),
             name: Some(NormalizedString::new_unchecked("name".to_string())),
             email: Some(NormalizedString::new_unchecked("email".to_string())),
         }

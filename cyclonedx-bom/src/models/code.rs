@@ -16,8 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use chrono::{DateTime, FixedOffset};
+
 use crate::{
-    external_models::{date_time::DateTime, normalized_string::NormalizedString, uri::Uri},
+    external_models::{normalized_string::NormalizedString, uri::Uri},
     validation::{
         FailureReason, Validate, ValidationContext, ValidationError, ValidationPathComponent,
         ValidationResult,
@@ -133,7 +135,7 @@ impl Validate for Diff {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IdentifiableAction {
-    pub timestamp: Option<DateTime>,
+    pub timestamp: Option<DateTime<FixedOffset>>,
     pub name: Option<NormalizedString>,
     pub email: Option<NormalizedString>,
 }
@@ -145,11 +147,8 @@ impl Validate for IdentifiableAction {
     ) -> Result<ValidationResult, ValidationError> {
         let mut results: Vec<ValidationResult> = vec![];
 
-        if let Some(timestamp) = &self.timestamp {
-            let context =
-                context.extend_context_with_struct_field("IdentifiableAction", "timestamp");
-
-            results.push(timestamp.validate_with_context(context)?);
+        if let Some(_timestamp) = &self.timestamp {
+            results.push(ValidationResult::Passed);
         }
 
         if let Some(name) = &self.name {
@@ -443,12 +442,16 @@ mod test {
             uid: Some(NormalizedString("no_whitespace".to_string())),
             url: Some(Uri("https://www.example.com".to_string())),
             author: Some(IdentifiableAction {
-                timestamp: Some(DateTime("1969-06-28T01:20:00.00-04:00".to_string())),
+                timestamp: Some(
+                    DateTime::parse_from_rfc3339("1969-06-28T01:20:00.00-04:00").unwrap(),
+                ),
                 name: Some(NormalizedString("Name".to_string())),
                 email: Some(NormalizedString("email@example.com".to_string())),
             }),
             committer: Some(IdentifiableAction {
-                timestamp: Some(DateTime("1969-06-28T01:20:00.00-04:00".to_string())),
+                timestamp: Some(
+                    DateTime::parse_from_rfc3339("1969-06-28T01:20:00.00-04:00").unwrap(),
+                ),
                 name: Some(NormalizedString("Name".to_string())),
                 email: Some(NormalizedString("email@example.com".to_string())),
             }),
@@ -466,12 +469,12 @@ mod test {
             uid: Some(NormalizedString("spaces and\ttabs".to_string())),
             url: Some(Uri("invalid uri".to_string())),
             author: Some(IdentifiableAction {
-                timestamp: Some(DateTime("Thursday".to_string())),
+                timestamp: Some(DateTime::parse_from_rfc3339("1970-01-01T00:00:00Z").unwrap()),
                 name: Some(NormalizedString("spaces and\ttabs".to_string())),
                 email: Some(NormalizedString("spaces and\ttabs".to_string())),
             }),
             committer: Some(IdentifiableAction {
-                timestamp: Some(DateTime("1970-01-01".to_string())),
+                timestamp: Some(DateTime::parse_from_rfc3339("1970-01-01T00:00:00Z").unwrap()),
                 name: Some(NormalizedString("spaces and\ttabs".to_string())),
                 email: Some(NormalizedString("spaces and\ttabs".to_string())),
             }),

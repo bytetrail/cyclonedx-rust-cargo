@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-pub mod date_time;
 pub mod normalized_string;
 pub mod spdx;
 pub mod uri;

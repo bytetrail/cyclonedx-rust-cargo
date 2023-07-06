@@ -1,4 +1,5 @@
 use crate::errors::{XmlReadError, XmlWriteError};
+use chrono::{DateTime, FixedOffset};
 use std::io::{Read, Write};
 use xml::{
     attribute::OwnedAttribute,
@@ -232,6 +233,19 @@ pub(crate) fn read_boolean_tag<R: Read>(
 ) -> Result<bool, XmlReadError> {
     read_simple_tag(event_reader, element)
         .and_then(|modified| bool::from_xml_value(element, modified))
+}
+
+pub(crate) fn read_timestamp_tag<R: Read>(
+    event_reader: &mut EventReader<R>,
+    element: &OwnedName,
+) -> Result<DateTime<FixedOffset>, XmlReadError> {
+    read_simple_tag(event_reader, element).and_then(|timestamp_str| {
+        DateTime::parse_from_rfc3339(&timestamp_str).map_err(|_| XmlReadError::InvalidParseError {
+            value: timestamp_str.to_string(),
+            data_type: "xs:dateTime".to_string(),
+            element: element.local_name.to_string(),
+        })
+    })
 }
 
 impl FromXml for String {

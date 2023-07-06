@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use thiserror::Error;
+use chrono::{DateTime, FixedOffset};
 
-use crate::external_models::date_time::{DateTime, DateTimeError};
 use crate::models::component::Component;
 use crate::models::license::Licenses;
 use crate::models::organization::{OrganizationalContact, OrganizationalEntity};
@@ -33,7 +32,7 @@ use crate::validation::{
 /// Defined via the [CycloneDX XML schema](https://cyclonedx.org/docs/1.3/xml/#type_metadata)
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Metadata {
-    pub timestamp: Option<DateTime>,
+    pub timestamp: Option<DateTime<FixedOffset>>,
     pub tools: Option<Tools>,
     pub authors: Option<Vec<OrganizationalContact>>,
     pub component: Option<Component>,
@@ -54,13 +53,10 @@ impl Metadata {
     /// # Errors
     ///
     /// Returns an error variant if unable to generate a valid timestamp
-    pub fn new() -> Result<Self, MetadataError> {
-        match DateTime::now() {
-            Ok(timestamp) => Ok(Self {
-                timestamp: Some(timestamp),
-                ..Default::default()
-            }),
-            Err(e) => Err(MetadataError::InvalidTimestamp(e)),
+    pub fn new() -> Self {
+        Self {
+            timestamp: Some(DateTime::from(chrono::offset::Utc::now())),
+            ..Default::default()
         }
     }
 }
@@ -72,10 +68,8 @@ impl Validate for Metadata {
     ) -> Result<ValidationResult, ValidationError> {
         let mut results: Vec<ValidationResult> = vec![];
 
-        if let Some(timestamp) = &self.timestamp {
-            let context = context.extend_context_with_struct_field("Metadata", "timestamp");
-
-            results.push(timestamp.validate_with_context(context)?);
+        if let Some(_timestamp) = &self.timestamp {
+            results.push(ValidationResult::Passed);
         }
 
         if let Some(tools) = &self.tools {
@@ -133,12 +127,6 @@ impl Validate for Metadata {
     }
 }
 
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum MetadataError {
-    #[error("Invalid timestamp")]
-    InvalidTimestamp(#[from] DateTimeError),
-}
-
 #[cfg(test)]
 mod test {
     use crate::{
@@ -155,7 +143,7 @@ mod test {
     #[test]
     fn valid_metadata_should_pass_validation() {
         let validation_result = Metadata {
-            timestamp: Some(DateTime("1969-06-28T01:20:00.00-04:00".to_string())),
+            timestamp: Some(DateTime::parse_from_rfc3339("1969-06-28T01:20:00.00-04:00").unwrap()),
             tools: Some(Tools(vec![Tool {
                 vendor: Some(NormalizedString::new("vendor")),
                 name: None,
@@ -219,7 +207,7 @@ mod test {
     #[test]
     fn invalid_metadata_should_fail_validation() {
         let validation_result = Metadata {
-            timestamp: Some(DateTime("invalid date".to_string())),
+            timestamp: Some(DateTime::parse_from_rfc3339("invalid date").expect("Invalid date")),
             tools: Some(Tools(vec![Tool {
                 vendor: Some(NormalizedString("invalid\tvendor".to_string())),
                 name: None,

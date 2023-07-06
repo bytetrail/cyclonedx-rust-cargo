@@ -40,7 +40,6 @@ use cyclonedx_bom::models::external_reference::{
 };
 use cyclonedx_bom::models::license::{License, LicenseChoice, Licenses};
 use cyclonedx_bom::models::metadata::Metadata;
-use cyclonedx_bom::models::metadata::MetadataError;
 use cyclonedx_bom::models::organization::OrganizationalContact;
 use cyclonedx_bom::models::tool::{Tool, Tools};
 use cyclonedx_bom::validation::Validate;
@@ -277,7 +276,7 @@ fn get_licenses(package: &Package) -> Option<Licenses> {
 fn create_metadata(package: &Package) -> Result<Metadata, GeneratorError> {
     let authors = create_authors(package);
 
-    let mut metadata = Metadata::new()?;
+    let mut metadata = Metadata::new();
     if !authors.is_empty() {
         metadata.authors = Some(authors);
     }
@@ -361,9 +360,6 @@ pub enum GeneratorError {
 
     #[error("Error with Cargo custom_metadata")]
     CustomMetadataTomlError(#[from] ConfigError),
-
-    #[error("Error creating Metadata")]
-    MetadataError(#[from] MetadataError),
 
     #[error("Could not parse author string: {}", .0)]
     AuthorParseError(String),

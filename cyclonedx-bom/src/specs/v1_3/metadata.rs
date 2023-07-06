@@ -17,7 +17,6 @@
  */
 
 use crate::{
-    external_models::date_time::DateTime,
     models,
     specs::v1_3::{
         component::Component, license::Licenses, organization::OrganizationalContact,
@@ -25,10 +24,11 @@ use crate::{
     },
     utilities::{convert_optional, convert_optional_vec},
     xml::{
-        read_lax_validation_tag, read_list_tag, read_simple_tag, to_xml_read_error,
+        read_lax_validation_tag, read_list_tag, read_timestamp_tag, to_xml_read_error,
         to_xml_write_error, unexpected_element_error, write_simple_tag, FromXml, ToInnerXml, ToXml,
     },
 };
+use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 use xml::{reader, writer::XmlEvent};
 
@@ -36,7 +36,7 @@ use xml::{reader, writer::XmlEvent};
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Metadata {
     #[serde(skip_serializing_if = "Option::is_none")]
-    timestamp: Option<String>,
+    timestamp: Option<DateTime<FixedOffset>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     tools: Option<Tools>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -56,7 +56,7 @@ pub(crate) struct Metadata {
 impl From<models::metadata::Metadata> for Metadata {
     fn from(other: models::metadata::Metadata) -> Self {
         Self {
-            timestamp: other.timestamp.map(|t| t.to_string()),
+            timestamp: convert_optional(other.timestamp),
             tools: convert_optional(other.tools),
             authors: convert_optional_vec(other.authors),
             component: convert_optional(other.component),
@@ -71,7 +71,7 @@ impl From<models::metadata::Metadata> for Metadata {
 impl From<Metadata> for models::metadata::Metadata {
     fn from(other: Metadata) -> Self {
         Self {
-            timestamp: other.timestamp.map(DateTime),
+            timestamp: convert_optional(other.timestamp),
             tools: convert_optional(other.tools),
             authors: convert_optional_vec(other.authors),
             component: convert_optional(other.component),
@@ -100,7 +100,11 @@ impl ToXml for Metadata {
             .map_err(to_xml_write_error(METADATA_TAG))?;
 
         if let Some(timestamp) = &self.timestamp {
-            write_simple_tag(writer, TIMESTAMP_TAG, timestamp)?;
+            write_simple_tag(
+                writer,
+                TIMESTAMP_TAG,
+                &format!("{}", timestamp.format("%Y-%m-%dT%H:%M:%S%:z")),
+            )?;
         }
 
         if let Some(tools) = &self.tools {
@@ -176,7 +180,7 @@ impl FromXml for Metadata {
     where
         Self: Sized,
     {
-        let mut timestamp: Option<String> = None;
+        let mut timestamp: Option<DateTime<FixedOffset>> = None;
         let mut tools: Option<Tools> = None;
         let mut authors: Option<Vec<OrganizationalContact>> = None;
         let mut component: Option<Component> = None;
@@ -192,7 +196,7 @@ impl FromXml for Metadata {
                 .map_err(to_xml_read_error(METADATA_TAG))?;
             match next_element {
                 reader::XmlEvent::StartElement { name, .. } if name.local_name == TIMESTAMP_TAG => {
-                    timestamp = Some(read_simple_tag(event_reader, &name)?)
+                    timestamp = Some(read_timestamp_tag(event_reader, &name)?)
                 }
                 reader::XmlEvent::StartElement {
                     name, attributes, ..
@@ -290,7 +294,7 @@ pub(crate) mod test {
 
     pub(crate) fn example_metadata() -> Metadata {
         Metadata {
-            timestamp: Some("timestamp".to_string()),
+            timestamp: Some(DateTime::parse_from_rfc3339("2021-01-01T00:00:00+00:00").unwrap()),
             tools: Some(example_tools()),
             authors: Some(vec![example_contact()]),
             component: Some(example_component()),
@@ -303,7 +307,7 @@ pub(crate) mod test {
 
     pub(crate) fn corresponding_metadata() -> models::metadata::Metadata {
         models::metadata::Metadata {
-            timestamp: Some(DateTime("timestamp".to_string())),
+            timestamp: Some(DateTime::parse_from_rfc3339("2021-01-01T00:00:00+00:00").unwrap()),
             tools: Some(corresponding_tools()),
             authors: Some(vec![corresponding_contact()]),
             component: Some(corresponding_component()),

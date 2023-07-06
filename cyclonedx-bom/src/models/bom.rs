@@ -29,6 +29,7 @@ use crate::models::dependency::Dependencies;
 use crate::models::external_reference::ExternalReferences;
 use crate::models::metadata::Metadata;
 use crate::models::property::Properties;
+use crate::models::release_notes::ReleaseNotes;
 use crate::models::service::{Service, Services};
 use crate::validation::{
     FailureReason, Validate, ValidationContext, ValidationError, ValidationPathComponent,
@@ -47,6 +48,7 @@ pub struct Bom {
     pub dependencies: Option<Dependencies>,
     pub compositions: Option<Compositions>,
     pub properties: Option<Properties>,
+    pub release_notes: Option<ReleaseNotes>,
 }
 
 impl Bom {
@@ -103,6 +105,7 @@ impl Default for Bom {
             dependencies: None,
             compositions: None,
             properties: None,
+            release_notes: None,
         }
     }
 }
@@ -463,7 +466,7 @@ fn matches_urn_uuid_regex(value: &str) -> Result<bool, regex::Error> {
 #[cfg(test)]
 mod test {
     use crate::{
-        external_models::{date_time::DateTime, normalized_string::NormalizedString, uri::Uri},
+        external_models::{normalized_string::NormalizedString, uri::Uri},
         models::{
             component::{Classification, Component},
             composition::{AggregateType, BomReference, Composition},
@@ -476,6 +479,7 @@ mod test {
     };
 
     use super::*;
+    use chrono::DateTime;
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -490,6 +494,7 @@ mod test {
             dependencies: None,
             compositions: None,
             properties: None,
+            release_notes: None,
         };
 
         let actual = bom
@@ -514,6 +519,7 @@ mod test {
             }])),
             compositions: None,
             properties: None,
+            release_notes: None,
         };
 
         let actual = bom.validate().expect("Failed to validate bom");
@@ -572,6 +578,7 @@ mod test {
                 dependencies: Some(vec![BomReference("dependencies".to_string())]),
             }])),
             properties: None,
+            release_notes: None,
         };
 
         let actual = bom.validate().expect("Failed to validate bom");
@@ -621,7 +628,9 @@ mod test {
             version: 1,
             serial_number: Some(UrnUuid("invalid uuid".to_string())),
             metadata: Some(Metadata {
-                timestamp: Some(DateTime("invalid datetime".to_string())),
+                timestamp: Some(
+                    DateTime::parse_from_rfc3339("invalid datetime").expect("Invalid date time"),
+                ),
                 tools: None,
                 authors: None,
                 component: None,
@@ -692,6 +701,7 @@ mod test {
                 name: "name".to_string(),
                 value: NormalizedString("invalid\tvalue".to_string()),
             }])),
+            release_notes: None,
         };
 
         let actual = bom
@@ -851,6 +861,7 @@ mod test {
             dependencies: None,
             compositions: None,
             properties: None,
+            release_notes: None,
         }
         .validate_with_context(ValidationContext::default())
         .expect("Error while validating");

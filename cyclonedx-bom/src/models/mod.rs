@@ -28,5 +28,6 @@ pub mod license;
 pub mod metadata;
 pub mod organization;
 pub mod property;
+pub mod release_notes;
 pub mod service;
 pub mod tool;
