@@ -207,6 +207,7 @@ impl From<Component> for models::component::Component {
             properties: convert_optional(other.properties),
             components: convert_optional(other.components),
             evidence: convert_optional(other.evidence),
+            release_notes: None,
         }
     }
 }
@@ -1235,6 +1236,7 @@ pub(crate) mod test {
             properties: Some(corresponding_properties()),
             components: Some(corresponding_empty_components()),
             evidence: Some(corresponding_evidence()),
+            release_notes: None,
         }
     }
 

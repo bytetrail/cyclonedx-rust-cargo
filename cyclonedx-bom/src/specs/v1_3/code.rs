@@ -34,7 +34,7 @@ use xml::{reader, writer};
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 #[serde(transparent)]
-pub(crate) struct Commits(Vec<Commit>);
+pub struct Commits(Vec<Commit>);
 
 impl From<models::code::Commits> for Commits {
     fn from(other: models::code::Commits) -> Self {
@@ -85,7 +85,7 @@ impl FromXml for Commits {
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct Commit {
+pub struct Commit {
     #[serde(skip_serializing_if = "Option::is_none")]
     uid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -234,7 +234,7 @@ impl FromXml for Commit {
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct IdentifiableAction {
+pub struct IdentifiableAction {
     #[serde(skip_serializing_if = "Option::is_none")]
     timestamp: Option<DateTime<FixedOffset>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -350,7 +350,7 @@ impl FromXml for IdentifiableAction {
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 #[serde(transparent)]
-pub(crate) struct Patches(Vec<Patch>);
+pub struct Patches(Vec<Patch>);
 
 impl From<models::code::Patches> for Patches {
     fn from(other: models::code::Patches) -> Self {
@@ -616,9 +616,9 @@ impl FromXml for Diff {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct Issue {
+pub struct Issue {
     #[serde(rename = "type")]
     issue_type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -780,7 +780,7 @@ impl FromXml for Issue {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 struct Source {
     #[serde(skip_serializing_if = "Option::is_none")]

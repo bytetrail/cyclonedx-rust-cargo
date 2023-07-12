@@ -25,14 +25,14 @@ use crate::{models, xml::to_xml_write_error};
 use serde::{Deserialize, Serialize};
 use xml::writer::{EventWriter, XmlEvent};
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct AttachedText {
+pub struct AttachedText {
     #[serde(skip_serializing_if = "Option::is_none")]
-    content_type: Option<String>,
+    pub content_type: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    encoding: Option<String>,
-    content: String,
+    pub encoding: Option<String>,
+    pub content: String,
 }
 
 impl From<models::attached_text::AttachedText> for AttachedText {

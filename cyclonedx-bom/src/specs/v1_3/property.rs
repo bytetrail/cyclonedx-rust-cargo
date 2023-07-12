@@ -28,9 +28,9 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use xml::writer::XmlEvent;
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct Properties(Vec<Property>);
+pub struct Properties(pub Vec<Property>);
 
 impl From<models::property::Properties> for Properties {
     fn from(other: models::property::Properties) -> Self {
@@ -79,11 +79,11 @@ impl FromXml for Properties {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct Property {
-    name: String,
-    value: String,
+pub struct Property {
+    pub name: String,
+    pub value: String,
 }
 
 impl From<models::property::Property> for Property {

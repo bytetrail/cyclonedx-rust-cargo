@@ -1,6 +1,7 @@
 use std::{convert::TryFrom, fmt::Display};
 
 use chrono::{DateTime, FixedOffset};
+use iri_string::types::IriString;
 
 use crate::models::code::Issue;
 
@@ -60,8 +61,8 @@ pub struct LocalizedString {
 pub struct ReleaseNotes {
     pub release_type: ReleaseType,
     pub title: Option<String>,
-    pub featured_image: Option<String>,
-    pub social_image: Option<String>,
+    pub featured_image: Option<IriString>,
+    pub social_image: Option<IriString>,
     pub description: Option<String>,
     pub timestamp: Option<DateTime<FixedOffset>>,
     pub aliases: Option<Vec<String>>,

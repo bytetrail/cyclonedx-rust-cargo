@@ -617,6 +617,7 @@ dependencies = [
  "chrono",
  "http",
  "insta",
+ "iri-string",
  "once_cell",
  "packageurl",
  "pretty_assertions",
@@ -1758,6 +1759,16 @@ dependencies = [
  "hermit-abi",
  "libc",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "iri-string"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21859b667d66a4c1dacd9df0863b3efb65785474255face87f5bca39dd8407c0"
+dependencies = [
+ "memchr",
+ "serde",
 ]
 
 [[package]]

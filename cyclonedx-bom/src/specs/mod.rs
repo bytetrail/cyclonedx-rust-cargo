@@ -16,4 +16,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-pub(crate) mod v1_3;
+pub mod v1_3;

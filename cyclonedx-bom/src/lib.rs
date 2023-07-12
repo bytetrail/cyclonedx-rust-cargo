@@ -131,6 +131,6 @@ pub mod models;
 pub mod prelude;
 pub mod validation;
 
-mod specs;
+pub mod specs;
 mod utilities;
 mod xml;

@@ -26,6 +26,7 @@ use crate::models::hash::Hashes;
 use crate::models::license::Licenses;
 use crate::models::organization::OrganizationalEntity;
 use crate::models::property::Properties;
+use crate::models::release_notes::ReleaseNotes;
 use crate::validation::{FailureReason, ValidationPathComponent};
 use crate::{
     external_models::{
@@ -60,6 +61,7 @@ pub struct Component {
     pub properties: Option<Properties>,
     pub components: Option<Components>,
     pub evidence: Option<ComponentEvidence>,
+    pub release_notes: Option<ReleaseNotes>,
 }
 
 impl Component {
@@ -93,6 +95,7 @@ impl Component {
             properties: None,
             components: None,
             evidence: None,
+            release_notes: None,
         }
     }
 }
@@ -607,11 +610,13 @@ mod test {
             hash::{Hash, HashAlgorithm, HashValue},
             license::LicenseChoice,
             property::Property,
+            release_notes::ReleaseType,
         },
         validation::ValidationPathComponent,
     };
 
     use super::*;
+    use iri_string::types::IriString;
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -690,6 +695,30 @@ mod test {
                     "MIT".to_string(),
                 ))])),
                 copyright: Some(CopyrightTexts(vec![Copyright("copyright".to_string())])),
+            }),
+            release_notes: Some(ReleaseNotes {
+                release_type: ReleaseType::Minor,
+                title: Some("Example Release Notes".to_string()),
+                featured_image: Some(
+                    "https://www.example.com/image.png"
+                        .parse::<IriString>()
+                        .unwrap(),
+                ),
+                social_image: Some(
+                    "https://www.example.com/image.png"
+                        .parse::<IriString>()
+                        .unwrap(),
+                ),
+                description: Some("Example release note description".to_string()),
+                timestamp: Some(
+                    "2021-01-01T00:00+00:00"
+                        .parse::<chrono::DateTime<chrono::FixedOffset>>()
+                        .unwrap(),
+                ),
+                aliases: Some(vec!["No alias".to_string()]),
+                tags: None,
+                issues: None,
+                notes: None,
             }),
         }])
         .validate_with_context(ValidationContext::default())
@@ -778,6 +807,30 @@ mod test {
                     "invalid license".to_string(),
                 ))])),
                 copyright: Some(CopyrightTexts(vec![Copyright("copyright".to_string())])),
+            }),
+            release_notes: Some(ReleaseNotes {
+                release_type: ReleaseType::Minor,
+                title: Some("Example Release Notes".to_string()),
+                featured_image: Some(
+                    "https://www.example.com/image.png"
+                        .parse::<IriString>()
+                        .unwrap(),
+                ),
+                social_image: Some(
+                    "https://www.example.com/image.png"
+                        .parse::<IriString>()
+                        .unwrap(),
+                ),
+                description: Some("Example release note description".to_string()),
+                timestamp: Some(
+                    "2021-01-01T00:00+00:00"
+                        .parse::<chrono::DateTime<chrono::FixedOffset>>()
+                        .unwrap(),
+                ),
+                aliases: Some(vec!["No alias".to_string()]),
+                tags: None,
+                issues: None,
+                notes: None,
             }),
         }])
         .validate_with_context(ValidationContext::default())
@@ -1193,6 +1246,7 @@ mod test {
             properties: None,
             components: None,
             evidence: None,
+            release_notes: None,
         }
     }
 }
